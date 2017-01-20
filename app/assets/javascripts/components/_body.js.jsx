@@ -4,7 +4,16 @@ var Body = React.createClass({
   },
 
   componentDidMount() {
-    $.getJSON('/api/v1/skills.json', (response) => { this.setState({ skills: response }) });
+    $.getJSON('/api/v1/skills.json', (response) => {
+      this.setState({ skills: response });
+    })
+  },
+
+  getSkills(){
+    let skills = $.getJSON('/api/v1/skills.json', (response) => {
+      debugger
+      return response
+    });
   },
 
   handleSubmit(skill) {
@@ -48,10 +57,21 @@ var Body = React.createClass({
     this.setState({ skills: skills });
   },
 
+  filterSkillsByLevel(level) {
+    $.getJSON('/api/v1/skills.json', (response) => {
+      let skills = response
+      if (level !== 'all') {
+        skills = skills.filter((skill) => { return skill.level === level })
+      };
+      this.setState({skills: skills})
+    });    
+  },
+
   render() {
     return (
       <div className="container">
         <NewSkill handleSubmit={this.handleSubmit} />
+        <SelectFilter handleFilter={this.filterSkillsByLevel} />
         <AllSkills skills={this.state.skills}
                    handleDelete={this.handleDelete}
                    handleUpdate={this.handleUpdate} />
