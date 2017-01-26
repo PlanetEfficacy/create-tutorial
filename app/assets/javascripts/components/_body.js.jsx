@@ -1,19 +1,12 @@
 var Body = React.createClass({
   getInitialState() {
-    return { skills: [] }
+    return { skills: [], filteredSkills: null }
   },
 
   componentDidMount() {
     $.getJSON('/api/v1/skills.json', (response) => {
       this.setState({ skills: response });
     })
-  },
-
-  getSkills(){
-    let skills = $.getJSON('/api/v1/skills.json', (response) => {
-      debugger
-      return response
-    });
   },
 
   handleSubmit(skill) {
@@ -43,10 +36,8 @@ var Body = React.createClass({
     $.ajax({
       url: `/api/v1/skills/${skill.id}`,
       type: 'PUT',
-      data: { skill: skill },
-      success: (skill) => {
-        this.updateSkills(skill);
-      }
+      data:  { skill },
+      success: skill => this.updateSkills(skill)
     });
   },
 
@@ -58,13 +49,11 @@ var Body = React.createClass({
   },
 
   filterSkillsByLevel(level) {
-    $.getJSON('/api/v1/skills.json', (response) => {
-      let skills = response
-      if (level !== 'all') {
-        skills = skills.filter((skill) => { return skill.level === level })
-      };
-      this.setState({skills: skills})
-    });    
+    let newSkills = null;
+    if (level !== 'all') {
+      let newSkills = this.state.skills.filter(skill => skill.level === level);
+    }
+    this.setState({filteredSkills: newSkills});
   },
 
   render() {
@@ -72,7 +61,7 @@ var Body = React.createClass({
       <div className="container">
         <NewSkill handleSubmit={this.handleSubmit} />
         <SelectFilter handleFilter={this.filterSkillsByLevel} />
-        <AllSkills skills={this.state.skills}
+        <AllSkills skills={this.state.filteredSkills || this.state.skills}
                    handleDelete={this.handleDelete}
                    handleUpdate={this.handleUpdate} />
       </div>
